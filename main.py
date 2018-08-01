@@ -16,13 +16,32 @@ def get_fact():
 
     return facts[0].getText()
 
-
 @app.route('/')
 def home():
-    return "FILL ME!"
+    fact = get_fact()
+    url = 'https://hidden-journey-62459.herokuapp.com/piglatinize/'
 
+
+    # apparently don't allow redirects. Magic.
+    response = requests.post(url, data = {'input_text': fact}, allow_redirects = False)
+
+    urlloc = response.headers['Location']
+    
+    # return urlloc
+
+    response = requests.get("{}".format(urlloc))
+
+    soup = BeautifulSoup(response.content, features="html.parser")
+
+
+    # Maybe change this so it's only the quote? But whatever, I'm okay with the full body.
+    quote = soup.find("body")
+
+    return quote.getText()
+
+
+# return location_header
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 6787))
-    app.run(host='0.0.0.0', port=port)
-
+    app.run(host='0.0.0.0', port=6787)
